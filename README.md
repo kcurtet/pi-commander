@@ -1,6 +1,13 @@
 # pi-commander
 
-Extensión para [pi](https://github.com/badlogic/pi-mono) que carga comandos personalizados desde archivos markdown o TypeScript.
+Extensión para [pi](https://github.com/badlogic/pi-mono) que carga comandos personalizados desde archivos markdown o TypeScript, y muestra un resumen de recursos al inicio.
+
+## Características
+
+- **Carga de comandos** desde múltiples ubicaciones (markdown y TypeScript)
+- **Resumen al inicio** que muestra contexto, skills y extensiones cargadas
+- **Configuración flexible** para habilitar/deshabilitar comandos específicos
+- **SKILL.md incluido** que enseña a crear extensiones de pi usando el SDK
 
 ## Instalación
 
@@ -13,6 +20,33 @@ Añade a tu `~/.pi/agent/settings.json`:
   ]
 }
 ```
+
+## Resumen al inicio
+
+Al iniciar pi, verás un resumen de los recursos cargados:
+
+```
+[Context]
+  ~/.pi/agent/AGENTS.md
+
+[Skills]
+  user
+    ~/.pi/agent/skills/calendar/SKILL.md
+    ~/.pi/agent/skills/crypto-analysis/SKILL.md
+    ...
+  git:github.com/kcurtet/pi-web-access
+    ~/.pi/agent/git/github.com/kcurtet/pi-web-access/skills/librarian/SKILL.md
+
+[Extensions]
+  user
+    ~/.pi/agent/extensions/fast-tools/index.ts
+    ~/.pi/agent/extensions/image-support/index.ts
+    ~/.pi/agent/extensions/pi-commander/index.ts
+
+[Commands] 39 loaded (36 builtin, 3 custom)
+```
+
+Este resumen desaparece automáticamente después de 5 segundos.
 
 ## Uso
 
@@ -165,6 +199,29 @@ export default {
 | `/review` | Review de código con best practices |
 | `/explain` | Explicación simple de código |
 | `/deep-think` | Análisis profundo con máximo razonamiento |
+| `/skill-create` | Crea un nuevo skill desde una descripción |
+
+### 🎯 Skill Creation
+
+El comando `/skill-create` permite crear nuevas habilidades (skills) para el agente:
+
+```bash
+# Uso básico
+/skill-create A skill for managing Docker containers
+
+# Ejemplos
+/skill-create A skill for working with PostgreSQL databases
+/skill-create A skill for AWS CLI operations
+/skill-create A skill for React component testing
+```
+
+El comando:
+1. Te pide confirmar el nombre del skill
+2. Genera contenido completo con ejemplos prácticos
+3. Guarda el archivo en `~/.pi/agent/skills/<name>/SKILL.md`
+4. Te permite revisar y editar antes de finalizar
+
+Los skills creados siguen el estándar [Agent Skills](https://agentskills.io/specification).
 
 ## Configuración
 
@@ -173,12 +230,20 @@ En `~/.pi/agent/settings.json`:
 ```json
 {
   "pi-commander": {
-    "commands": true
+    "commands": true,
+    "showSummary": true
   }
 }
 ```
 
 Opciones:
+
+| Opción | Valor por defecto | Descripción |
+|--------|-------------------|-------------|
+| `commands` | `true` | Cargar comandos builtin |
+| `showSummary` | `true` | Mostrar resumen de recursos al inicio |
+
+### Comandos
 
 | Valor | Descripción |
 |-------|-------------|
@@ -187,6 +252,19 @@ Opciones:
 | `["commit", "stash", "review"]` | Cargar solo los comandos especificados |
 
 Los comandos personalizados en `~/.pi/commands/` y `.pi/commands/` siempre se cargan y pueden sobrescribir los builtin.
+
+## Skill: Pi Extensions
+
+La extensión incluye un skill (`SKILL.md`) que proporciona una guía completa para crear extensiones de pi. Este skill se carga automáticamente vía el evento `resources_discover` y está disponible para el LLM.
+
+Contenido del skill:
+- Estructura básica de extensiones
+- Registro de herramientas con TypeBox
+- Eventos del ciclo de vida
+- UI personalizada (notificaciones, diálogos, widgets)
+- Comandos y atajos de teclado
+- Estado persistente
+- Ejemplos completos
 
 ## Licencia
 

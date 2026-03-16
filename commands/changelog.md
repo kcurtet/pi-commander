@@ -1,5 +1,5 @@
 ---
-name: changelog
+name: git-changelog
 description: Generate changelog from git commits
 ---
 
