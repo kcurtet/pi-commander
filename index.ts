@@ -19,6 +19,7 @@ interface CommandFrontmatter {
   model?: string;
   thinking?: "off" | "minimal" | "low" | "medium" | "high" | "xhigh";
   description?: string;
+  input?: "enabled" | "disabled" | "required";
 }
 
 interface ParsedCommand {
@@ -105,6 +106,11 @@ function parseFrontmatter(content: string): { frontmatter: CommandFrontmatter; b
       }
     }
     else if (key === "description") frontmatter.description = value;
+    else if (key === "input") {
+      if (["enabled", "disabled", "required"].includes(value)) {
+        frontmatter.input = value as CommandFrontmatter["input"];
+      }
+    }
   }
 
   return { frontmatter, body };
@@ -484,9 +490,20 @@ export default function (pi: ExtensionAPI) {
               pi.setThinkingLevel(cmd.frontmatter.thinking);
             }
 
-            // Build final prompt with args appended
+            // Handle input based on frontmatter setting
+            const inputMode = cmd.frontmatter.input || "enabled"; // default: enabled
+            const hasArgs = args && args.trim().length > 0;
+
+            // Check if input is required but not provided
+            if (inputMode === "required" && !hasArgs) {
+              ctx.ui.notify(`Command '/${cmd.name}' requires input`, "error");
+              ctx.ui.notify(`Usage: /${cmd.name} <input>`, "info");
+              return;
+            }
+
+            // Build final prompt with args appended (if input is enabled/required and args exist)
             let finalPrompt = cmd.prompt;
-            if (args && args.trim()) {
+            if ((inputMode === "enabled" || inputMode === "required") && hasArgs) {
               finalPrompt += `\n\n${args}`;
             }
 

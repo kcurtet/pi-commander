@@ -3,6 +3,7 @@ name: skill-create
 description: Create a new skill from a prompt description
 model: anthropic/claude-sonnet-4
 thinking: medium
+input: required
 ---
 
 # Skill Creation Task

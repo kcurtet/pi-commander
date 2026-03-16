@@ -79,6 +79,29 @@ Tu prompt aquí. Los argumentos se añaden al final.
 | `model` | Modelo a usar | `claude-sonnet-4`, `claude-opus-4`, etc. |
 | `thinking` | Nivel de razonamiento | `off`, `minimal`, `low`, `medium`, `high`, `xhigh` |
 | `description` | Descripción mostrada en `/help` | string |
+| `input` | Control de argumentos | `enabled` (default), `disabled`, `required` |
+
+#### Input Modes
+
+- **`enabled`** (default): Argumentos opcionales, se añaden al final del prompt
+- **`disabled`**: Ignora cualquier argumento proporcionado
+- **`required`**: Muestra error si no se proporcionan argumentos
+
+Ejemplo con `input: required`:
+
+```markdown
+---
+name: skill-create
+description: Create a new skill from a prompt description
+model: claude-sonnet-4
+input: required
+---
+
+Create a skill based on the following description:
+{args}
+```
+
+Uso: `/skill-create A skill for managing Docker containers`
 
 ## Comandos TypeScript
 
