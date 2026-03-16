@@ -246,7 +246,7 @@ export default function (pi: ExtensionAPI) {
   })
 
   // Register commands on session start
-  pi.on("session_start", async () => {
+  pi.on("session_start", async (_event, ctx) => {
     // Load commands
     const loaded = await discoverCommands(process.cwd(), commandsConfig)
     commands.push(...loaded)
@@ -307,8 +307,6 @@ export default function (pi: ExtensionAPI) {
 
     // Show resource summary at startup (like [Extensions] and [Skills])
     if (showSummary && commands.length > 0) {
-      const lines: string[] = []
-
       // Group commands by source
       const bySource = new Map<ParsedCommand["source"], ParsedCommand[]>()
       for (const cmd of commands) {
@@ -320,24 +318,33 @@ export default function (pi: ExtensionAPI) {
       // Define display order: project > agent > user > builtin
       const order: ParsedCommand["source"][] = ["project", "agent", "user", "builtin"]
 
-      lines.push("[Commands]")
-      for (const source of order) {
-        const cmds = bySource.get(source)
-        if (!cmds || cmds.length === 0) continue
+      // Use TUI component with theme support
+      ctx.ui.setWidget("pi-commander-startup", (_tui, theme) => {
+        const lines: string[] = []
 
-        lines.push(`  ${source}`)
-        for (const cmd of cmds.sort((a, b) => a.name.localeCompare(b.name))) {
-          const displayPath = cmd.path.startsWith(home)
-            ? "~" + cmd.path.slice(home.length)
-            : cmd.path
-          lines.push(`    /${cmd.name} (${displayPath})`)
+        lines.push(theme.fg("accent", theme.bold("[Commands]")))
+        for (const source of order) {
+          const cmds = bySource.get(source)
+          if (!cmds || cmds.length === 0) continue
+
+          const cmdNames = cmds
+            .sort((a, b) => a.name.localeCompare(b.name))
+            .map(cmd => theme.fg("text", `/${cmd.name}`))
+            .join(" ")
+
+          lines.push(theme.fg("muted", `  ${source}`))
+          lines.push(`    ${cmdNames}`)
         }
-      }
 
-      // Display for 10 seconds
-      pi.setWidget("pi-commander-startup", lines, { placement: "aboveEditor" })
+        return {
+          render: () => lines,
+          invalidate: () => {},
+        }
+      }, { placement: "aboveEditor" })
+
+      // Auto-dismiss after 10 seconds
       setTimeout(() => {
-        pi.setWidget("pi-commander-startup", undefined)
+        ctx.ui.setWidget("pi-commander-startup", undefined)
       }, 10000)
     }
   })
