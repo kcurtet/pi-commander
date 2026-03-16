@@ -1,9 +1,9 @@
 ---
-name: pi-extensions
-description: Guía completa para crear extensiones de pi. Aprende a registrar herramientas, comandos, eventos y UI personalizada usando el SDK de pi-coding-agent.
+name: pi-commander
+description: Sistema de gestión de comandos para pi. Carga comandos desde markdown/TypeScript y proporciona herramientas para crear extensiones y skills.
 ---
 
-# Skill: Pi Extensions - Desarrollo de Extensiones
+# Skill: Pi Commander - Gestión de Comandos y Extensiones
 
 ## 📖 ¿Qué son las extensiones de pi?
 
