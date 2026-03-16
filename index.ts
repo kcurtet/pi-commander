@@ -5,6 +5,7 @@
  */
 
 import type { ExtensionAPI, ExtensionCommandContext } from "@mariozechner/pi-coding-agent";
+import { wrapTextWithAnsi } from "@mariozechner/pi-tui";
 import { readFileSync, existsSync, readdirSync, statSync } from "fs";
 import { join, basename, dirname } from "path";
 import { homedir } from "os";
@@ -305,7 +306,7 @@ export default function (pi: ExtensionAPI) {
       })
     }
 
-    // Show resource summary at startup (like [Extensions] and [Skills])
+    // Show resource summary at startup as header (like [Extensions]/[Skills])
     if (showSummary && commands.length > 0) {
       // Group commands by source
       const bySource = new Map<ParsedCommand["source"], ParsedCommand[]>()
@@ -318,34 +319,37 @@ export default function (pi: ExtensionAPI) {
       // Define display order: project > agent > user > builtin
       const order: ParsedCommand["source"][] = ["project", "agent", "user", "builtin"]
 
-      // Use TUI component with theme support
-      ctx.ui.setWidget("pi-commander-startup", (_tui, theme) => {
-        const lines: string[] = []
+      // Use setHeader with theme support
+      ctx.ui.setHeader((_tui, theme) => {
+        const baseLines: string[] = []
 
-        lines.push(theme.fg("accent", theme.bold("[Commands]")))
+        baseLines.push(theme.fg("mdHeading", "[Commands]"))
         for (const source of order) {
           const cmds = bySource.get(source)
           if (!cmds || cmds.length === 0) continue
 
           const cmdNames = cmds
             .sort((a, b) => a.name.localeCompare(b.name))
-            .map(cmd => theme.fg("text", `/${cmd.name}`))
+            .map(cmd => `/${cmd.name}`)
             .join(" ")
 
-          lines.push(theme.fg("muted", `  ${source}`))
-          lines.push(`    ${cmdNames}`)
+          baseLines.push(theme.fg("accent", `  ${source}`))
+          baseLines.push(theme.fg("dim", `    ${cmdNames}`))
         }
+        baseLines.push("")  // Empty line at end
 
         return {
-          render: () => lines,
+          render: (width: number) => {
+            const lines: string[] = []
+            for (const line of baseLines) {
+              const wrapped = wrapTextWithAnsi(line, width)
+              lines.push(...wrapped)
+            }
+            return lines
+          },
           invalidate: () => {},
         }
-      }, { placement: "aboveEditor" })
-
-      // Auto-dismiss after 10 seconds
-      setTimeout(() => {
-        ctx.ui.setWidget("pi-commander-startup", undefined)
-      }, 10000)
+      })
     }
   })
 }
