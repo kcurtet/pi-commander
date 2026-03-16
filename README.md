@@ -168,15 +168,25 @@ export default {
 
 ## Configuración
 
-Desactivar comandos por defecto en `~/.pi/agent/settings.json`:
+En `~/.pi/agent/settings.json`:
 
 ```json
 {
   "pi-commander": {
-    "loadDefaults": false
+    "commands": true
   }
 }
 ```
+
+Opciones:
+
+| Valor | Descripción |
+|-------|-------------|
+| `true` | Cargar todos los comandos por defecto (36 comandos) |
+| `false` | No cargar ningún comando por defecto |
+| `["commit", "stash", "review"]` | Cargar solo los comandos especificados |
+
+Los comandos personalizados en `~/.pi/commands/` y `.pi/commands/` siempre se cargan y pueden sobrescribir los builtin.
 
 ## Licencia
 

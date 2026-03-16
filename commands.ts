@@ -22,7 +22,8 @@ interface ParsedCommand {
 
 interface Settings {
   "pi-commander"?: {
-    loadDefaults?: boolean;
+    /** true = all, false = none, string[] = specific commands */
+    commands?: boolean | string[];
   };
 }
 
@@ -162,16 +163,28 @@ async function loadCommandsFromPath(
   return commands;
 }
 
-async function discoverCommands(cwd: string, loadDefaults: boolean, pi: ExtensionAPI): Promise<ParsedCommand[]> {
+async function discoverCommands(
+  cwd: string,
+  commandsConfig: boolean | string[],
+  pi: ExtensionAPI
+): Promise<ParsedCommand[]> {
   const commands: ParsedCommand[] = [];
 
   // Built-in commands from extension's commands folder
-  if (loadDefaults) {
+  if (commandsConfig !== false) {
     const builtinPath = join(dirname(new URL(import.meta.url).pathname), "commands");
-    commands.push(...await loadCommandsFromPath(builtinPath, "builtin", pi));
+    const builtinCommands = await loadCommandsFromPath(builtinPath, "builtin", pi);
+
+    // Filter if specific commands requested
+    if (Array.isArray(commandsConfig)) {
+      const requested = new Set(commandsConfig);
+      commands.push(...builtinCommands.filter(cmd => requested.has(cmd.name)));
+    } else {
+      commands.push(...builtinCommands);
+    }
   }
 
-  // User commands
+  // User commands (always loaded, can override builtin)
   const searchPaths: Array<{ path: string; source: ParsedCommand["source"] }> = [
     { path: join(homedir(), ".pi/agent/commands"), source: "agent" },
     { path: join(homedir(), ".pi/commands"), source: "user" },
@@ -194,9 +207,9 @@ async function discoverCommands(cwd: string, loadDefaults: boolean, pi: Extensio
 export default function (pi: ExtensionAPI) {
   pi.on("session_start", async (_event, ctx) => {
     const settings = loadSettings();
-    const loadDefaults = settings["pi-commander"]?.loadDefaults !== false;
+    const commandsConfig: boolean | string[] = settings["pi-commander"]?.commands ?? true;
 
-    const commands = await discoverCommands(ctx.cwd, loadDefaults, pi);
+    const commands = await discoverCommands(ctx.cwd, commandsConfig, pi);
 
     for (const cmd of commands) {
       pi.registerCommand(cmd.name, {
