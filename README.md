@@ -90,21 +90,81 @@ export default {
 
 ## Comandos incluidos
 
-### Markdown
+### 🔍 Análisis y Debugging
+
+| Comando | Descripción |
+|---------|-------------|
+| `/debug` | Analiza errores y tracebacks, sugiere soluciones |
+| `/perf` | Identifica cuellos de botella y optimizaciones |
+| `/security` | Auditoría de seguridad del código |
+| `/deps` | Analiza dependencias, busca actualizaciones y vulnerabilidades |
+| `/complexity` | Calcula complejidad y sugiere simplificaciones |
+
+### 📝 Generación de Código
+
+| Comando | Descripción |
+|---------|-------------|
+| `/test` | Genera tests unitarios |
+| `/doc` | Genera documentación (JSDoc, docstrings) |
+| `/types` | Añade o mejora tipado TypeScript |
+| `/scaffold` | Genera boilerplate (componentes, endpoints, etc.) |
+| `/mock` | Genera mocks y fixtures para tests |
+
+### 🔄 Refactoring
+
+| Comando | Descripción |
+|---------|-------------|
+| `/refactor` | Refactoring general manteniendo funcionalidad |
+| `/modernize` | Actualiza código a sintaxis moderna |
+| `/extract` | Extrae función/componente del código |
+| `/inline` | Inlinea funciones/variables pequeñas |
+| `/dedupe` | Detecta y elimina código duplicado |
+
+### 🌐 Web y APIs
+
+| Comando | Descripción |
+|---------|-------------|
+| `/api` | Diseña o documenta endpoints REST/GraphQL |
+| `/curl` | Convierte código a curl y viceversa |
+| `/json` | Formatea, valida o genera schema JSON |
+| `/regex` | Explica, debuggea o genera expresiones regulares |
+| `/sql` | Explica, optimiza o traduce queries SQL |
+
+### 📦 Git y DevOps
 
 | Comando | Descripción |
 |---------|-------------|
 | `/commit` | Analiza diff y crea commit descriptivo |
 | `/stash` | Guarda cambios en stash con mensaje |
-| `/review` | Review de código con best practices |
-| `/explain` | Explicación simple de código |
-| `/deep-think` | Análisis profundo con máximo razonamiento |
+| `/pr` | Genera descripción para pull request |
+| `/changelog` | Genera changelog desde commits |
 
-### TypeScript
+### 📚 Documentación
 
 | Comando | Descripción |
 |---------|-------------|
-| `/todo` | Extrae y lista todos los TODOs/FIXMEs del código |
+| `/readme` | Genera o mejora README.md |
+| `/todo` | Extrae TODOs/FIXMEs del código |
+| `/env` | Genera .env.example desde código |
+| `/ignore` | Genera .gitignore para el proyecto |
+
+### 🧠 Thinking Modes
+
+| Comando | Descripción |
+|---------|-------------|
+| `/think` | Análisis profundo sin acción inmediata |
+| `/critic` | Critica y encuentra fallos en el enfoque |
+| `/alt` | Propone alternativas de solución |
+| `/estimate` | Estima complejidad/tiempo de implementación |
+
+### 🛠️ Utilidades
+
+| Comando | Descripción |
+|---------|-------------|
+| `/translate` | Traduce código entre lenguajes |
+| `/review` | Review de código con best practices |
+| `/explain` | Explicación simple de código |
+| `/deep-think` | Análisis profundo con máximo razonamiento |
 
 ## Configuración
 
