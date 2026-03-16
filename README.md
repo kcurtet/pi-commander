@@ -1,6 +1,6 @@
 # pi-commander
 
-Extensión para [pi](https://github.com/badlogic/pi-mono) que carga comandos personalizados desde archivos markdown con frontmatter.
+Extensión para [pi](https://github.com/badlogic/pi-mono) que carga comandos personalizados desde archivos markdown o TypeScript.
 
 ## Instalación
 
@@ -16,15 +16,15 @@ Añade a tu `~/.pi/agent/settings.json`:
 
 ## Uso
 
-### Crear un comando
-
-Crea un archivo `.md` en cualquiera de estas ubicaciones:
+Crea archivos `.md` o `.ts` en cualquiera de estas ubicaciones:
 
 - `~/.pi/agent/commands/` - Comandos del sistema
 - `~/.pi/commands/` - Comandos del usuario
 - `.pi/commands/` - Comandos del proyecto
 
-### Formato
+## Comandos Markdown
+
+Formato con frontmatter opcional:
 
 ```markdown
 ---
@@ -34,10 +34,10 @@ thinking: high
 description: Descripción del comando
 ---
 
-Tu prompt aquí. {args} se reemplazará con los argumentos pasados al comando.
+Tu prompt aquí. Los argumentos se añaden al final.
 ```
 
-### Frontmatter opcional
+### Frontmatter
 
 | Campo | Descripción | Valores |
 |-------|-------------|---------|
@@ -46,19 +46,65 @@ Tu prompt aquí. {args} se reemplazará con los argumentos pasados al comando.
 | `thinking` | Nivel de razonamiento | `off`, `minimal`, `low`, `medium`, `high`, `xhigh` |
 | `description` | Descripción mostrada en `/help` | string |
 
-### Ejecutar
+## Comandos TypeScript
 
-```bash
-/mi-comando argumentos adicionales
+Para lógica más compleja, usa TypeScript:
+
+```typescript
+import type { ExtensionCommandContext, ExtensionAPI } from "@mariozechner/pi-coding-agent";
+
+interface TSCommandModule {
+  name?: string;
+  description?: string;
+  handler: (args: string, ctx: ExtensionCommandContext, pi: ExtensionAPI) => Promise<void> | void;
+}
+
+export default {
+  name: "mi-comando",
+  description: "Descripción del comando",
+
+  async handler(args: string, ctx: ExtensionCommandContext, pi: ExtensionAPI) {
+    // Acceso a herramientas
+    const result = await pi.exec("git", ["status"]);
+
+    // UI interactiva
+    const choice = await ctx.ui.select("Elige:", ["A", "B"]);
+
+    // Enviar mensaje al agente
+    pi.sendUserMessage("Resultado: ...");
+  },
+} satisfies TSCommandModule;
 ```
+
+### API disponible
+
+- `pi.exec(cmd, args, options)` - Ejecutar comandos shell
+- `pi.sendUserMessage(text)` - Enviar mensaje al agente
+- `pi.setModel(model)` - Cambiar modelo
+- `pi.setThinkingLevel(level)` - Cambiar nivel de thinking
+- `ctx.ui.notify(msg, type)` - Notificación
+- `ctx.ui.confirm(title, msg)` - Diálogo de confirmación
+- `ctx.ui.select(title, options)` - Selección
+- `ctx.ui.input(title, placeholder)` - Input de texto
+- `ctx.ui.editor(title, content)` - Editor multilínea
 
 ## Comandos incluidos
 
+### Markdown
+
 | Comando | Descripción |
 |---------|-------------|
+| `/commit` | Analiza diff y crea commit descriptivo |
+| `/stash` | Guarda cambios en stash con mensaje |
 | `/review` | Review de código con best practices |
 | `/explain` | Explicación simple de código |
 | `/deep-think` | Análisis profundo con máximo razonamiento |
+
+### TypeScript
+
+| Comando | Descripción |
+|---------|-------------|
+| `/todo` | Extrae y lista todos los TODOs/FIXMEs del código |
 
 ## Configuración
 
